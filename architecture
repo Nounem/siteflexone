@@ -1,0 +1,42 @@
+// Structure proposée pour l'application
+
+src/
+  ├── components/           // Composants réutilisables
+  │   ├── ui/               // Composants de l'interface utilisateur (ShadCN)
+  │   ├── layout/           // Composants de mise en page (Layout, Sidebar, etc.)
+  │   └── features/         // Composants spécifiques aux fonctionnalités
+  │       ├── home/         // Composants pour la page d'accueil
+  │       ├── gyms/         // Composants pour la recherche et l'affichage des salles
+  │       └── admin/        // Composants pour l'administration
+  │
+  ├── lib/                  // Utilitaires, hooks, et fonctions
+  │   ├── utils.ts          // Fonctions utilitaires
+  │   ├── types.ts          // Types TypeScript communs
+  │   └── constants.ts      // Constantes de l'application
+  │
+  ├── contexts/             // Contextes React
+  │   └── AuthContext.tsx   // Contexte d'authentification
+  │
+  ├── hooks/                // Hooks personnalisés
+  │   ├── useGyms.ts        // Gestion des données des salles
+  │   └── useLocalStorage.ts // Stockage local
+  │
+  ├── services/             // Services d'accès aux données
+  │   ├── api.ts            // Configuration de l'API
+  │   ├── gymService.ts     // Service pour les salles de sport
+  │   └── storageService.ts // Service pour la persistance
+  │
+  ├── pages/                // Pages de l'application
+  │   ├── HomePage.tsx      // Page d'accueil
+  │   ├── FindGymPage.tsx   // Page pour trouver une salle
+  │   ├── AdminPage.tsx     // Page d'administration
+  │   └── NotFoundPage.tsx  // Page 404
+  │
+  ├── routes/               // Configuration des routes
+  │   └── AppRoutes.tsx     // Définition des routes
+  │
+  ├── styles/               // Styles globaux
+  │   └── globals.css       // Styles CSS globaux
+  │
+  ├── App.tsx               // Composant principal App
+  └── main.tsx              // Point d'entrée de l'application
