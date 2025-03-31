@@ -1,37 +1,36 @@
-// src/pages/FindGymPage.tsx
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Gym, FilterOptions } from '../lib/types.ts';
+import useGyms from '../hooks/useGyms.ts';
+import { formatPrice, truncateText, getUniqueCities, getUniqueAmenities } from '../lib/utils.ts';
+import { Button } from '../components/ui/button.tsx';
+import { Input } from '../components/ui/input.tsx';
+import { Checkbox } from '../components/ui/checkbox.tsx';
+import { Slider } from '../components/ui/slider.tsx';
 import { 
   Search, Filter, MapPin, Star, ChevronDown, X, Dumbbell, 
   SlidersHorizontal, Check, ArrowUpDown 
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Slider } from '@/components/ui/slider';
+import { Link } from 'react-router-dom';
 import { 
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
+} from '../components/ui/accordion.tsx';
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet';
+} from '../components/ui/sheet.tsx';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Gym, FilterOptions } from '@/lib/types';
-import useGyms from '@/hooks/useGyms';
-import { formatPrice, truncateText, getUniqueCities, getUniqueAmenities } from '@/lib/utils';
+} from '../components/ui/select.tsx';
+
 
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating-desc' | 'name-asc';
 

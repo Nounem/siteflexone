@@ -29,6 +29,9 @@ export interface GymPlan {
   features: string[];
 }
 
+// Alias pour la compatibilité avec GymDetailPage
+export type Plan = GymPlan;
+
 // Type pour les coordonnées de contact
 export interface ContactInfo {
   phone: string;
@@ -52,6 +55,9 @@ export interface Gym {
   rating?: number;
   reviewCount?: number;
   featured?: boolean;
+  reviews?: Review[];
+  pricePerMonth?: number;
+  imageUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }

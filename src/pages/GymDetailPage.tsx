@@ -1,34 +1,32 @@
-// src/pages/GymDetailPage.tsx
-import { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Button } from '../components/ui/button.tsx';
 import { 
   MapPin, Phone, Mail, Globe, Clock, Check, Star, ChevronRight, 
-  ChevronLeft, Dumbbell, ArrowLeft, Share2
+  ChevronLeft, Dumbbell, ArrowLeft, Share2, X 
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import { Badge } from '../components/ui/badge.tsx';
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '@/components/ui/tabs';
+} from '../components/ui/tabs.tsx';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
+} from '../components/ui/accordion.tsx';
 import { 
   Dialog, 
   DialogContent, 
   DialogHeader, 
   DialogTitle,
   DialogTrigger
-} from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Gym, Plan } from '@/lib/types';
-import useGyms from '@/hooks/useGyms';
-import { formatPrice, formatTime } from '@/lib/utils';
+} from '../components/ui/dialog.tsx';
+import { Gym, Plan } from '../lib/types.ts';
+import useGyms from '../hooks/useGyms.ts';
+import { formatPrice, formatTime } from '../lib/utils.ts';
 
 const GymDetailPage = () => {
   const { id } = useParams<{ id: string }>();

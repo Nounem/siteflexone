@@ -1,5 +1,5 @@
 import React from 'react';
-import CsvImportForm from '../components/features/admin/CsvImportForm';
+import CsvImportForm from '../components/features/admin/CsvImportForm.tsx';
 
 const AdminImportExport: React.FC = () => {
   return (

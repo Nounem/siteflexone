@@ -1,4 +1,3 @@
-// src/lib/utils.ts
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -49,99 +48,6 @@ export function slugify(text: string): string {
 export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength) + '...';
-}
-
-/**
- * Calculate average rating from an array of reviews
- */
-export function calculateAverageRating(reviews: { rating: number }[]): number {
-  if (!reviews || reviews.length === 0) return 0;
-  
-  const sum = reviews.reduce((total, review) => total + review.rating, 0);
-  return parseFloat((sum / reviews.length).toFixed(1));
-}
-
-/**
- * Group an array by a key
- */
-export function groupBy<T>(array: T[], key: keyof T): Record<string, T[]> {
-  return array.reduce((result, item) => {
-    const groupKey = String(item[key]);
-    if (!result[groupKey]) {
-      result[groupKey] = [];
-    }
-    result[groupKey].push(item);
-    return result;
-  }, {} as Record<string, T[]>);
-}
-
-/**
- * Sort array of objects by a key
- */
-export function sortBy<T>(array: T[], key: keyof T, direction: 'asc' | 'desc' = 'asc'): T[] {
-  return [...array].sort((a, b) => {
-    const aValue = a[key];
-    const bValue = b[key];
-    
-    if (aValue < bValue) return direction === 'asc' ? -1 : 1;
-    if (aValue > bValue) return direction === 'asc' ? 1 : -1;
-    return 0;
-  });
-}
-
-/**
- * Download data as a file
- */
-export function downloadFile(content: string, fileName: string, contentType: string): void {
-  const a = document.createElement('a');
-  const file = new Blob([content], { type: contentType });
-  a.href = URL.createObjectURL(file);
-  a.download = fileName;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-
-/**
- * Read file as text
- */
-export function readFileAsText(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        resolve(event.target.result as string);
-      } else {
-        reject(new Error('Failed to read file'));
-      }
-    };
-    reader.onerror = () => {
-      reject(new Error('Failed to read file'));
-    };
-    reader.readAsText(file);
-  });
-}
-
-/**
- * Validate email format
- */
-export function isValidEmail(email: string): boolean {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return regex.test(email);
-}
-
-/**
- * Validate phone number format (French format)
- */
-export function isValidPhoneNumber(phone: string): boolean {
-  const regex = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/;
-  return regex.test(phone);
-}
-
-/**
- * Check if a string is empty or only contains whitespace
- */
-export function isEmptyString(str: string | null | undefined): boolean {
-  return !str || str.trim() === '';
 }
 
 /**

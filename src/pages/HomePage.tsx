@@ -1,11 +1,11 @@
 // src/pages/HomePage.tsx
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Dumbbell, Users, Briefcase, CheckCircle, Zap, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import useGyms from '../hooks/useGyms';
-import { Gym } from '@/lib/types';
-import { truncateText, formatPrice } from '../lib/utils';
+import useGyms from '../hooks/useGyms.ts';
+import { Gym } from '../lib/types.ts';
+import { truncateText, formatPrice } from '../lib/utils.ts';
+import { Button } from '../components/ui/button.tsx';
 
 const HomePage = () => {
   const { gyms, isLoading } = useGyms();
@@ -20,6 +20,7 @@ const HomePage = () => {
   }, [gyms]);
 
   return (
+    
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="relative py-20 md:py-32 bg-gradient-to-r from-blue-800 to-navy overflow-hidden">
@@ -53,6 +54,7 @@ const HomePage = () => {
           </svg>
         </div>
       </section>
+
 
       {/* Comment ça marche */}
       <section className="py-16 md:py-24 bg-white">

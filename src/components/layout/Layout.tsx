@@ -2,8 +2,8 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Button } from '../ui/button.tsx';
+import { cn } from '../../lib/utils.ts';
 
 const Layout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -43,10 +43,10 @@ const Layout = () => {
               Accueil
             </Link>
             <Link 
-              to="/trouver-une-salle" 
+              to="/find-gym" 
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary",
-                isActive("/trouver-une-salle") ? "text-primary" : "text-muted-foreground"
+                isActive("/find-gym") ? "text-primary" : "text-muted-foreground"
               )}
             >
               Trouver une salle
@@ -125,10 +125,10 @@ const Layout = () => {
                 Accueil
               </Link>
               <Link
-                to="/trouver-une-salle"
+                to="/find-gym"
                 className={cn(
                   "block py-2 px-3 rounded-md text-base font-medium hover:bg-gray-100",
-                  isActive("/trouver-une-salle") ? "bg-gray-100 text-primary" : "text-gray-900"
+                  isActive("/find-gym") ? "bg-gray-100 text-primary" : "text-gray-900"
                 )}
                 onClick={closeMenu}
               >
@@ -229,7 +229,7 @@ const Layout = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/trouver-une-salle" className="text-gray-600 hover:text-gray-900">
+                  <Link to="/find-gym" className="text-gray-600 hover:text-gray-900">
                     Trouver une salle
                   </Link>
                 </li>

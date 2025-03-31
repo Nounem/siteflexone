@@ -1,7 +1,7 @@
 // src/hooks/useGyms.ts
 import { useState, useEffect, useCallback } from 'react';
-import { Gym, FilterOptions } from '@/lib/types';
-import gymService from '@/services/gymService';
+import { Gym, FilterOptions } from '../lib/types.ts';
+import gymService from '../services/gymService.ts';
 
 export default function useGyms() {
   const [gyms, setGyms] = useState<Gym[]>([]);

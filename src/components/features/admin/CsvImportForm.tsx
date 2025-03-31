@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import gymService from '../../../services/gymService';
+import gymService from '../../../services/gymService.ts';
 
 const CsvImportForm: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);

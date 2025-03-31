@@ -1,11 +1,14 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
+// Layout
+import Layout from './components/layout/Layout.tsx';
+
 // Pages publiques
 import HomePage from './pages/HomePage.tsx';
 import FindGymPage from './pages/FindGymPage.tsx';
 import GymDetailPage from './pages/GymDetailPage.tsx';
-import NotFoundPage from './pages/NotFoundPage.tsx'; // Verify the file exists at this path or adjust the path to match the actual file location
+import NotFoundPage from './pages/NotFoundPage.tsx';
 
 // Pages d'administration
 import AdminPage from './pages/AdminPage.tsx';
@@ -14,13 +17,9 @@ import AdminGymList from './pages/AdminGymList.tsx';
 import AdminGymForm from './pages/AdminGymForm.tsx';
 import AdminImportExport from './pages/AdminImportExport.tsx';
 
-// Context d'authentification (à implémenter)
-//import { useAuth } from '../contexts/AuthContext';
-
 const AppRoutes: React.FC = () => {
   // À remplacer par une véritable logique d'authentification
- // const isAdmin = localStorage.getItem('user_role') === 'admin';
- const isAdmin = true; 
+  const isAdmin = true; 
 
   // Composant de protection pour les routes administratives
   const AdminRoute = ({ children }: { children: React.ReactElement }) => {
@@ -33,10 +32,12 @@ const AppRoutes: React.FC = () => {
 
   return (
     <Routes>
-      {/* Routes publiques */}
-      <Route path="/" element={<HomePage />} />
-      <Route path="/find-gym" element={<FindGymPage />} />
-      <Route path="/gyms/:id" element={<GymDetailPage />} />
+      {/* Routes publiques avec Layout */}
+      <Route element={<Layout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/find-gym" element={<FindGymPage />} />
+        <Route path="/gyms/:id" element={<GymDetailPage />} />
+      </Route>
       
       {/* Routes administratives */}
       <Route 

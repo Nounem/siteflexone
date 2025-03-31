@@ -1,5 +1,5 @@
 // src/services/gymService.ts
-import { Gym, FilterOptions } from "@/lib/types";
+import { Gym, FilterOptions } from "../lib/types";
 import { v4 as uuidv4 } from "uuid";
 
 // Simuler une base de données locale avec localStorage
@@ -75,7 +75,29 @@ const initializeGyms = (): void => {
           website: "https://fitnesspro.fr"
         },
         rating: 4.5,
+        reviewCount: 120,
         featured: true,
+        reviews: [
+          {
+            id: uuidv4(),
+            gymId: "1",
+            userId: "user1",
+            userName: "Jean Dupont",
+            rating: 5,
+            comment: "Excellente salle avec du matériel de grande qualité. Le personnel est très accueillant.",
+            date: new Date().toISOString()
+          },
+          {
+            id: uuidv4(),
+            gymId: "1",
+            userId: "user2", 
+            userName: "Marie Laurent",
+            rating: 4,
+            comment: "J'adore les cours collectifs, très dynamiques. Seul bémol, les vestiaires pourraient être plus grands.",
+            date: new Date().toISOString()
+          }
+        ],
+        pricePerMonth: 29.99,
         createdAt: new Date(),
         updatedAt: new Date()
       },
@@ -118,6 +140,9 @@ const initializeGyms = (): void => {
           email: "info@musclezone.fr"
         },
         rating: 4.2,
+        reviewCount: 85,
+        reviews: [],
+        pricePerMonth: 24.99,
         createdAt: new Date(),
         updatedAt: new Date()
       }
@@ -266,11 +291,11 @@ const gymService = {
         
         // Exemple simplifié d'importation
         const newGym: Gym = {
-          id: uuidv4(),
-          name: values[1].replace(/^"|"$/g, ''),
-          address: values[2].replace(/^"|"$/g, ''),
-          city: values[3].replace(/^"|"$/g, ''),
-          zipCode: values[4],
+          id: values[0] || uuidv4(),
+          name: values[1]?.replace(/^"|"$/g, '') || "",
+          address: values[2]?.replace(/^"|"$/g, '') || "",
+          city: values[3]?.replace(/^"|"$/g, '') || "",
+          zipCode: values[4] || "",
           description: values[5]?.replace(/^"|"$/g, '') || "",
           amenities: values[6]?.replace(/^"|"$/g, '').split(', ') || [],
           plans: [{
@@ -294,6 +319,7 @@ const gymService = {
             phone: "",
             email: ""
           },
+          reviews: [],
           createdAt: new Date(),
           updatedAt: new Date()
         };

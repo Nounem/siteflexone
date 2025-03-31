@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import gymService from '../services/gymService';
-import { Gym, GymPlan, DayOfWeek } from '../lib/types';
+import gymService from '../services/gymService.ts';
+import { Gym, GymPlan, DayOfWeek } from '../lib/types.ts';
 import { v4 as uuidv4 } from 'uuid';
 
 // Valeurs par défaut pour une nouvelle salle
