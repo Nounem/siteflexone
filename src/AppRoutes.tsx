@@ -7,6 +7,7 @@ import Layout from './components/layout/Layout.tsx';
 // Pages publiques
 import HomePage from './pages/HomePage.tsx';
 import FindGymPage from './pages/FindGymPage.tsx';
+import FindGymMapPage from './pages/FindGymMapPage.tsx'; // Nouvelle page avec carte
 import GymDetailPage from './pages/GymDetailPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 
@@ -36,6 +37,7 @@ const AppRoutes: React.FC = () => {
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/find-gym" element={<FindGymPage />} />
+        <Route path="/find-gym-map" element={<FindGymMapPage />} /> {/* Nouvelle route */}
         <Route path="/gyms/:id" element={<GymDetailPage />} />
       </Route>
       

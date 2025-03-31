@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { Gym, FilterOptions } from '../lib/types.ts';
 import useGyms from '../hooks/useGyms.ts';
 import { formatPrice, truncateText, getUniqueCities, getUniqueAmenities } from '../lib/utils.ts';
@@ -68,10 +69,11 @@ const FindGymPage = () => {
   }, [selectedCity, selectedAmenities, priceRange, minRating]);
   
   // Fonction pour appliquer les filtres
+ // Fonction pour appliquer les filtres
   const applyFilters = () => {
     const options: FilterOptions = {};
     
-    if (selectedCity) {
+    if (selectedCity && selectedCity !== 'all') {
       options.city = selectedCity;
     }
     
@@ -210,13 +212,13 @@ const FindGymPage = () => {
                         <SelectValue placeholder="Toutes les villes" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Toutes les villes</SelectItem>
-                        {cities.map((city) => (
-                          <SelectItem key={city} value={city}>
-                            {city}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
+                          <SelectItem value="all">Toutes les villes</SelectItem>
+                          {cities.map((city) => (
+                            <SelectItem key={city} value={city}>
+                              {city}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
                     </Select>
                   </AccordionContent>
                 </AccordionItem>
@@ -318,7 +320,7 @@ const FindGymPage = () => {
                           <SelectValue placeholder="Toutes les villes" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Toutes les villes</SelectItem>
+                          <SelectItem value="all">Toutes les villes</SelectItem>
                           {cities.map((city) => (
                             <SelectItem key={city} value={city}>
                               {city}
@@ -541,7 +543,7 @@ const FindGymPage = () => {
                 {displayedGyms.map((gym) => (
                   <Link 
                     key={gym.id}
-                    to={`/salle/${gym.id}`}
+                    to={`/gyms/${gym.id}`}
                     className="bg-white rounded-xl shadow-card hover:shadow-card-hover transition-shadow duration-300 overflow-hidden group"
                   >
                     <div className="h-48 bg-gray-200 relative overflow-hidden">

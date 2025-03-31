@@ -1,9 +1,10 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '../components/ui/button.tsx';
 import { 
   MapPin, Phone, Mail, Globe, Clock, Check, Star, ChevronRight, 
   ChevronLeft, Dumbbell, ArrowLeft, Share2, X 
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { Badge } from '../components/ui/badge.tsx';
 import {
   Tabs,
@@ -24,6 +25,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from '../components/ui/dialog.tsx';
+import { Carousel } from '../components/ui/carousel.tsx';
 import { Gym, Plan } from '../lib/types.ts';
 import useGyms from '../hooks/useGyms.ts';
 import { formatPrice, formatTime } from '../lib/utils.ts';
@@ -33,7 +35,6 @@ const GymDetailPage = () => {
   const navigate = useNavigate();
   const { getGymById, isLoading } = useGyms();
   const [gym, setGym] = useState<Gym | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showImageDialog, setShowImageDialog] = useState(false);
 
   useEffect(() => {
@@ -47,23 +48,6 @@ const GymDetailPage = () => {
       }
     }
   }, [id, getGymById, navigate]);
-
-  // Fonction pour naviguer entre les images
-  const nextImage = () => {
-    if (gym && gym.images.length > 0) {
-      setCurrentImageIndex((prevIndex) => 
-        prevIndex === gym.images.length - 1 ? 0 : prevIndex + 1
-      );
-    }
-  };
-
-  const prevImage = () => {
-    if (gym && gym.images.length > 0) {
-      setCurrentImageIndex((prevIndex) => 
-        prevIndex === 0 ? gym.images.length - 1 : prevIndex - 1
-      );
-    }
-  };
 
   // Fonction pour partager la page
   const sharePage = () => {
@@ -143,64 +127,29 @@ const GymDetailPage = () => {
                 Retour
               </Button>
               <nav className="flex items-center text-sm text-gray-500">
-                <Link to="/" className="hover:text-navy">Accueil</Link>
+                <Link to="/" className="hover:text-primary">Accueil</Link>
                 <ChevronRight className="h-4 w-4 mx-1" />
-                <Link to="/trouver-une-salle" className="hover:text-navy">Salles de sport</Link>
+                <Link to="/trouver-une-salle" className="hover:text-primary">Salles de sport</Link>
                 <ChevronRight className="h-4 w-4 mx-1" />
                 <span className="text-gray-900">{gym.name}</span>
               </nav>
             </div>
           </div>
 
-          <div className="relative h-64 md:h-96 overflow-hidden rounded-none md:rounded-xl" onClick={() => setShowImageDialog(true)}>
+          <div 
+            className="relative h-64 md:h-96 overflow-hidden rounded-none md:rounded-xl cursor-pointer" 
+            onClick={() => setShowImageDialog(true)}
+          >
             {gym.images && gym.images.length > 0 ? (
-              <img 
-                src={gym.images[currentImageIndex]} 
-                alt={`${gym.name} - Image ${currentImageIndex + 1}`} 
-                className="w-full h-full object-cover object-center cursor-pointer"
+              <Carousel 
+                images={gym.images} 
+                imageClassName="transition-transform duration-300 hover:scale-105"
+                className="h-full"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-blue-50 text-navy">
-                <Dumbbell className="h-24 w-24" />
+              <div className="w-full h-full flex items-center justify-center bg-blue-50 text-primary">
+                <Dumbbell className="h-24 w-24 animate-pulse" />
               </div>
-            )}
-
-            {/* Navigation des images */}
-            {gym.images && gym.images.length > 1 && (
-              <>
-                <button 
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 text-gray-800 hover:bg-white"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    prevImage();
-                  }}
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <button 
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-2 text-gray-800 hover:bg-white"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    nextImage();
-                  }}
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-                <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
-                  {gym.images.map((_, index) => (
-                    <button
-                      key={index}
-                      className={`h-2 w-2 rounded-full ${
-                        index === currentImageIndex ? 'bg-white' : 'bg-white/50'
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentImageIndex(index);
-                      }}
-                    />
-                  ))}
-                </div>
-              </>
             )}
           </div>
         </div>
@@ -213,8 +162,8 @@ const GymDetailPage = () => {
             {/* Titre et notation */}
             <div className="hidden md:flex justify-between items-start mb-6">
               <div>
-                <h1 className="text-3xl font-semibold mb-2">{gym.name}</h1>
-                <div className="flex items-center text-gray-600">
+                <h1 className="text-3xl font-semibold mb-2 text-primary animate-fade-in">{gym.name}</h1>
+                <div className="flex items-center text-gray-600 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                   <MapPin className="h-4 w-4 mr-1" />
                   <span>{gym.address}, {gym.zipCode} {gym.city}</span>
                 </div>
@@ -228,7 +177,7 @@ const GymDetailPage = () => {
             </div>
 
             <div className="md:hidden mb-6">
-              <h1 className="text-2xl font-semibold mb-2">{gym.name}</h1>
+              <h1 className="text-2xl font-semibold mb-2 text-primary">{gym.name}</h1>
               <div className="flex items-center text-gray-600 text-sm">
                 <MapPin className="h-4 w-4 mr-1" />
                 <span>{gym.address}, {gym.zipCode} {gym.city}</span>
@@ -237,7 +186,7 @@ const GymDetailPage = () => {
 
             {/* Notation */}
             {gym.rating && (
-              <div className="flex items-center mb-6">
+              <div className="flex items-center mb-6 animate-fade-in" style={{ animationDelay: '0.3s' }}>
                 <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full flex items-center">
                   <Star className="h-4 w-4 mr-1 fill-yellow-500 text-yellow-500" />
                   <span className="font-semibold">{gym.rating}</span>
@@ -253,30 +202,30 @@ const GymDetailPage = () => {
             )}
 
             {/* Onglets d'informations */}
-            <Tabs defaultValue="description" className="mt-6">
+            <Tabs defaultValue="description" className="mt-6 animate-fade-in" style={{ animationDelay: '0.4s' }}>
               <TabsList className="w-full justify-start border-b rounded-none bg-transparent p-0 mb-6">
                 <TabsTrigger 
                   value="description" 
-                  className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-navy data-[state=active]:shadow-none py-3"
+                  className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none py-3"
                 >
                   Description
                 </TabsTrigger>
                 <TabsTrigger 
                   value="amenities" 
-                  className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-navy data-[state=active]:shadow-none py-3"
+                  className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none py-3"
                 >
                   Équipements
                 </TabsTrigger>
                 <TabsTrigger 
                   value="schedule" 
-                  className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-navy data-[state=active]:shadow-none py-3"
+                  className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none py-3"
                 >
                   Horaires
                 </TabsTrigger>
                 {gym.reviews && gym.reviews.length > 0 && (
                   <TabsTrigger 
                     value="reviews" 
-                    className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-navy data-[state=active]:shadow-none py-3"
+                    className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none py-3"
                   >
                     Avis
                   </TabsTrigger>
@@ -399,12 +348,16 @@ const GymDetailPage = () => {
 
           {/* Sidebar */}
           <div>
-            <div className="bg-white rounded-xl shadow-card p-6 sticky top-24">
-              <h2 className="text-xl font-semibold mb-6">Forfaits</h2>
+            <div className="bg-white rounded-xl shadow-card p-6 sticky top-24 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+              <h2 className="text-xl font-semibold mb-6 text-primary">Forfaits</h2>
               
               <div className="space-y-4">
-                {gym.plans.map((plan: Plan) => (
-                  <div key={plan.id} className="border rounded-lg p-4 transition-colors hover:border-navy">
+                {gym.plans.map((plan: Plan, index) => (
+                  <div 
+                    key={plan.id} 
+                    className="border rounded-lg p-4 transition-all hover:border-primary hover:shadow-md transform hover:-translate-y-1"
+                    style={{ animationDelay: `${0.6 + index * 0.1}s` }}
+                  >
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-semibold text-lg">{plan.name}</h3>
                       <Badge variant={plan.name.toLowerCase().includes('premium') ? 'default' : 'outline'}>
@@ -412,7 +365,7 @@ const GymDetailPage = () => {
                          plan.duration === 'yearly' ? 'Annuel' : 'Journalier'}
                       </Badge>
                     </div>
-                    <p className="text-2xl font-semibold text-navy mb-3">
+                    <p className="text-2xl font-semibold text-primary mb-3">
                       {formatPrice(plan.price)}
                       <span className="text-sm font-normal text-gray-500 ml-1">
                         {plan.duration === 'monthly' ? '/ mois' : 
@@ -436,13 +389,13 @@ const GymDetailPage = () => {
                 <div className="space-y-3">
                   <div className="flex items-center">
                     <Phone className="h-5 w-5 text-gray-500 mr-3" />
-                    <a href={`tel:${gym.contact.phone}`} className="hover:text-navy">
+                    <a href={`tel:${gym.contact.phone}`} className="hover:text-primary transition-colors">
                       {gym.contact.phone}
                     </a>
                   </div>
                   <div className="flex items-center">
                     <Mail className="h-5 w-5 text-gray-500 mr-3" />
-                    <a href={`mailto:${gym.contact.email}`} className="hover:text-navy">
+                    <a href={`mailto:${gym.contact.email}`} className="hover:text-primary transition-colors">
                       {gym.contact.email}
                     </a>
                   </div>
@@ -453,7 +406,7 @@ const GymDetailPage = () => {
                         href={gym.contact.website.startsWith('http') ? gym.contact.website : `https://${gym.contact.website}`}
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="hover:text-navy"
+                        className="hover:text-primary transition-colors"
                       >
                         Site web
                       </a>
@@ -462,7 +415,7 @@ const GymDetailPage = () => {
                 </div>
               </div>
 
-              <Button className="w-full mt-6 bg-navy hover:bg-blue-900">
+              <Button className="w-full mt-6 bg-primary hover:bg-blue-900 text-white">
                 Contacter la salle
               </Button>
             </div>
@@ -485,44 +438,15 @@ const GymDetailPage = () => {
           </DialogHeader>
           <div className="h-[80vh] relative">
             {gym.images && gym.images.length > 0 ? (
-              <img 
-                src={gym.images[currentImageIndex]} 
-                alt={`${gym.name} - Image ${currentImageIndex + 1}`} 
-                className="w-full h-full object-contain"
+              <Carousel 
+                images={gym.images} 
+                className="h-full"
+                autoSlide={false}
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gray-100 text-navy">
+              <div className="w-full h-full flex items-center justify-center bg-gray-100 text-primary">
                 <Dumbbell className="h-24 w-24" />
               </div>
-            )}
-
-            {/* Navigation des images */}
-            {gym.images && gym.images.length > 1 && (
-              <>
-                <button 
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/20 hover:bg-black/40 rounded-full p-3 text-white"
-                  onClick={prevImage}
-                >
-                  <ChevronLeft className="h-6 w-6" />
-                </button>
-                <button 
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/20 hover:bg-black/40 rounded-full p-3 text-white"
-                  onClick={nextImage}
-                >
-                  <ChevronRight className="h-6 w-6" />
-                </button>
-                <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
-                  {gym.images.map((_, index) => (
-                    <button
-                      key={index}
-                      className={`h-2 w-2 rounded-full ${
-                        index === currentImageIndex ? 'bg-white' : 'bg-white/50'
-                      }`}
-                      onClick={() => setCurrentImageIndex(index)}
-                    />
-                  ))}
-                </div>
-              </>
             )}
           </div>
         </DialogContent>
