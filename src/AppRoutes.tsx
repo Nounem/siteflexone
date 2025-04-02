@@ -2,21 +2,21 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Layout
-import Layout from './components/layout/Layout.tsx';
+import Layout from './components/layout/Layout';
 
 // Pages publiques
-import HomePage from './pages/HomePage.tsx';
-import FindGymPage from './pages/FindGymPage.tsx';
-import FindGymMapPage from './pages/FindGymMapPage.tsx'; // Nouvelle page avec carte
-import GymDetailPage from './pages/GymDetailPage.tsx';
-import NotFoundPage from './pages/NotFoundPage.tsx';
+import HomePage from './pages/HomePage';
+import FindGymPage from './pages/FindGymPage';
+import FindGymMapPage from './pages/FindGymMapPage'; // Nouvelle page avec carte
+import GymDetailPage from './pages/GymDetailPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 // Pages d'administration
-import AdminPage from './pages/AdminPage.tsx';
-import AdminDashboard from './pages/AdminDashboard.tsx';
-import AdminGymList from './pages/AdminGymList.tsx';
-import AdminGymForm from './pages/AdminGymForm.tsx';
-import AdminImportExport from './pages/AdminImportExport.tsx';
+import AdminPage from './pages/AdminPage';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminGymList from './pages/AdminGymList';
+import AdminGymForm from './pages/AdminGymForm';
+import AdminImportExport from './pages/AdminImportExport';
 
 const AppRoutes: React.FC = () => {
   // À remplacer par une véritable logique d'authentification

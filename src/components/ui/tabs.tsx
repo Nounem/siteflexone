@@ -1,75 +1,61 @@
-import React from 'react';
-import { cn } from '../../lib/utils.ts';
+import React, { createContext, useContext, useState } from 'react';
+import { cn } from '../../lib/utils';
 
-// Types
-interface TabsContextValue {
+type TabsContextValue = {
   value: string;
   onValueChange: (value: string) => void;
-}
+};
 
-// Context
-const TabsContext = React.createContext<TabsContextValue | undefined>(undefined);
+const TabsContext = createContext<TabsContextValue | null>(null);
 
-function useTabs() {
-  const context = React.useContext(TabsContext);
-  if (!context) {
-    throw new Error('useTabs should be used within a TabsProvider');
-  }
-  return context;
-}
-
-// Tabs component
-interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
-  defaultValue: string;
+export interface TabsProps {
+  defaultValue?: string;
   value?: string;
   onValueChange?: (value: string) => void;
   className?: string;
   children: React.ReactNode;
 }
 
-export function Tabs({ 
-  defaultValue, 
-  value, 
-  onValueChange, 
+export function Tabs({
+  defaultValue,
+  value,
+  onValueChange,
   className,
   children,
-  ...props 
+  ...props
 }: TabsProps) {
-  const [tabValue, setTabValue] = React.useState(value || defaultValue);
-  
-  React.useEffect(() => {
-    if (value !== undefined) {
-      setTabValue(value);
+  const [localValue, setLocalValue] = useState(value || defaultValue || '');
+
+  const handleValueChange = (newValue: string) => {
+    if (value === undefined) {
+      setLocalValue(newValue);
     }
-  }, [value]);
-  
-  const handleValueChange = React.useCallback((newValue: string) => {
-    setTabValue(newValue);
-    onValueChange?.(newValue);
-  }, [onValueChange]);
+    if (onValueChange) {
+      onValueChange(newValue);
+    }
+  };
 
   return (
-    <TabsContext.Provider value={{ value: tabValue, onValueChange: handleValueChange }}>
-      <div className={cn('w-full', className)} {...props}>
+    <TabsContext.Provider
+      value={{ value: value === undefined ? localValue : value, onValueChange: handleValueChange }}
+    >
+      <div className={cn('', className)} {...props}>
         {children}
       </div>
     </TabsContext.Provider>
   );
 }
 
-// TabsList component
-interface TabsListProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface TabsListProps {
   className?: string;
   children: React.ReactNode;
 }
 
 export function TabsList({ className, children, ...props }: TabsListProps) {
   return (
-    <div 
-      className={cn(
-        'flex flex-wrap border-b border-gray-200',
-        className
-      )} 
+    <div
+      className={cn('flex bg-gray-100 p-1 rounded-lg', className)}
+      role="tablist"
       {...props}
     >
       {children}
@@ -77,29 +63,36 @@ export function TabsList({ className, children, ...props }: TabsListProps) {
   );
 }
 
-// TabsTrigger component
-interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  value: string;
+export interface TabsTriggerProps {
   className?: string;
+  value: string;
   children: React.ReactNode;
 }
 
-export function TabsTrigger({ value, className, children, ...props }: TabsTriggerProps) {
-  const { value: currentValue, onValueChange } = useTabs();
-  const isActive = currentValue === value;
+export function TabsTrigger({ className, value, children, ...props }: TabsTriggerProps) {
+  const context = useContext(TabsContext);
+  
+  if (!context) {
+    throw new Error('TabsTrigger must be used within a Tabs component');
+  }
+  
+  const { value: selectedValue, onValueChange } = context;
+  const isSelected = selectedValue === value;
   
   return (
     <button
+      type="button"
+      role="tab"
+      aria-selected={isSelected}
       className={cn(
-        'px-4 py-2 text-sm font-medium',
-        'transition-all duration-200',
-        isActive 
-          ? 'text-primary border-b-2 border-primary' 
-          : 'text-gray-500 hover:text-gray-700 hover:border-gray-300',
+        'inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-all',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#61dafb] focus-visible:ring-offset-2',
+        isSelected 
+          ? 'bg-white text-[#002875] shadow-sm' 
+          : 'text-gray-600 hover:text-[#002875]',
         className
       )}
       onClick={() => onValueChange(value)}
-      data-state={isActive ? 'active' : 'inactive'}
       {...props}
     >
       {children}
@@ -107,26 +100,29 @@ export function TabsTrigger({ value, className, children, ...props }: TabsTrigge
   );
 }
 
-// TabsContent component
-interface TabsContentProps extends React.HTMLAttributes<HTMLDivElement> {
-  value: string;
+export interface TabsContentProps {
   className?: string;
+  value: string;
   children: React.ReactNode;
 }
 
-export function TabsContent({ value, className, children, ...props }: TabsContentProps) {
-  const { value: currentValue } = useTabs();
-  const isActive = currentValue === value;
+export function TabsContent({ className, value, children, ...props }: TabsContentProps) {
+  const context = useContext(TabsContext);
   
-  if (!isActive) return null;
+  if (!context) {
+    throw new Error('TabsContent must be used within a Tabs component');
+  }
+  
+  const { value: selectedValue } = context;
+  
+  if (selectedValue !== value) {
+    return null;
+  }
   
   return (
     <div
-      className={cn(
-        'mt-4 focus:outline-none',
-        className
-      )}
-      data-state={isActive ? 'active' : 'inactive'}
+      role="tabpanel"
+      className={cn('focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#61dafb] focus-visible:ring-offset-2', className)}
       {...props}
     >
       {children}

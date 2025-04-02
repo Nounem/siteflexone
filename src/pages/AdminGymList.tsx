@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import gymService from '../services/gymService.ts';
-import { Gym } from '../lib/types.ts';
+import gymService from '../services/gymService';
+import { Gym } from '../lib/types';
 
 const AdminGymList: React.FC = () => {
   const [gyms, setGyms] = useState<Gym[]>([]);

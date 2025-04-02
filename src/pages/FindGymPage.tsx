@@ -1,39 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { Gym, FilterOptions } from '../lib/types.ts';
-import useGyms from '../hooks/useGyms.ts';
-import { formatPrice, truncateText, getUniqueCities, getUniqueAmenities } from '../lib/utils.ts';
-import { Button } from '../components/ui/button.tsx';
-import { Input } from '../components/ui/input.tsx';
-import { Checkbox } from '../components/ui/checkbox.tsx';
-import { Slider } from '../components/ui/slider.tsx';
+import { Link } from 'react-router-dom';
+import { Gym, FilterOptions } from '../lib/types';
+import useGyms from '../hooks/useGyms';
+import { formatPrice, truncateText, getUniqueCities, getUniqueAmenities } from '../lib/utils';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Checkbox } from '../components/ui/checkbox';
+import { Slider } from '../components/ui/slider';
 import { 
   Search, Filter, MapPin, Star, ChevronDown, X, Dumbbell, 
-  SlidersHorizontal, Check, ArrowUpDown 
+  SlidersHorizontal, Check, ArrowUpDown, MapIcon, ListIcon
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import GymMap from '../components/map/GymMap';
 import { 
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '../components/ui/accordion.tsx';
+} from '../components/ui/accordion';
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '../components/ui/sheet.tsx';
+} from '../components/ui/sheet';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../components/ui/select.tsx';
-
+} from '../components/ui/select';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '../components/ui/tabs';
 
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'rating-desc' | 'name-asc';
+type ViewMode = 'list' | 'map';
 
 const FindGymPage = () => {
   const { gyms, filteredGyms, filterGyms, isLoading } = useGyms();
@@ -48,6 +55,8 @@ const FindGymPage = () => {
   const [cities, setCities] = useState<string[]>([]);
   const [amenities, setAmenities] = useState<string[]>([]);
   const [activeFilters, setActiveFilters] = useState<number>(0);
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [selectedGymId, setSelectedGymId] = useState<string | null>(null);
   
   // Récupérer les villes et équipements uniques
   useEffect(() => {
@@ -69,7 +78,6 @@ const FindGymPage = () => {
   }, [selectedCity, selectedAmenities, priceRange, minRating]);
   
   // Fonction pour appliquer les filtres
- // Fonction pour appliquer les filtres
   const applyFilters = () => {
     const options: FilterOptions = {};
     
@@ -157,13 +165,18 @@ const FindGymPage = () => {
   
   // Combiner les fonctions de filtrage et de tri
   const displayedGyms = sortGyms(filterBySearch(filteredGyms));
+
+  // Gérer la sélection d'une salle
+  const handleGymSelect = (gymId: string) => {
+    setSelectedGymId(gymId);
+  };
   
   return (
     <div className="min-h-screen bg-gray-50">
       {/* En-tête de la page */}
-      <div className="bg-navy py-12 px-4">
+      <div className="bg-[#002875] py-12 px-4">
         <div className="container mx-auto">
-          <h1 className="text-4xl font-bebas tracking-wide text-white mb-6">
+          <h1 className="text-4xl font-bold tracking-wide text-white mb-6">
             Trouvez votre salle de sport idéale
           </h1>
           <p className="text-blue-100 mb-8 max-w-2xl">
@@ -433,7 +446,7 @@ const FindGymPage = () => {
                 {activeFilters > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
                     {selectedCity && (
-                      <div className="bg-blue-100 text-navy text-xs px-3 py-1 rounded-full flex items-center">
+                      <div className="bg-blue-100 text-[#002875] text-xs px-3 py-1 rounded-full flex items-center">
                         <MapPin className="h-3 w-3 mr-1" />
                         {selectedCity}
                         <button 
@@ -446,7 +459,7 @@ const FindGymPage = () => {
                     )}
                     
                     {selectedAmenities.map(amenity => (
-                      <div key={amenity} className="bg-blue-100 text-navy text-xs px-3 py-1 rounded-full flex items-center">
+                      <div key={amenity} className="bg-blue-100 text-[#002875] text-xs px-3 py-1 rounded-full flex items-center">
                         <Check className="h-3 w-3 mr-1" />
                         {amenity}
                         <button 
@@ -459,7 +472,7 @@ const FindGymPage = () => {
                     ))}
                     
                     {(priceRange[0] > 0 || priceRange[1] < 200) && (
-                      <div className="bg-blue-100 text-navy text-xs px-3 py-1 rounded-full flex items-center">
+                      <div className="bg-blue-100 text-[#002875] text-xs px-3 py-1 rounded-full flex items-center">
                         <span>{formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}</span>
                         <button 
                           onClick={() => setPriceRange([0, 200])}
@@ -471,7 +484,7 @@ const FindGymPage = () => {
                     )}
                     
                     {minRating > 0 && (
-                      <div className="bg-blue-100 text-navy text-xs px-3 py-1 rounded-full flex items-center">
+                      <div className="bg-blue-100 text-[#002875] text-xs px-3 py-1 rounded-full flex items-center">
                         <Star className="h-3 w-3 mr-1 fill-current" />
                         {minRating}+
                         <button 
@@ -485,7 +498,7 @@ const FindGymPage = () => {
                     
                     <button 
                       onClick={resetFilters}
-                      className="text-xs text-gray-500 hover:text-navy underline"
+                      className="text-xs text-gray-500 hover:text-[#002875] underline"
                     >
                       Réinitialiser tous les filtres
                     </button>
@@ -493,8 +506,8 @@ const FindGymPage = () => {
                 )}
               </div>
               
-              {/* Options de tri (Desktop) */}
-              <div className="hidden md:block">
+              {/* Options de tri et vue (Desktop) */}
+              <div className="hidden md:flex items-center space-x-4">
                 <Select value={sortOption} onValueChange={(value) => setSortOption(value as SortOption)}>
                   <SelectTrigger className="w-[180px]">
                     <span className="flex items-center">
@@ -513,92 +526,221 @@ const FindGymPage = () => {
               </div>
             </div>
             
-            {/* Liste des salles */}
-            {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, index) => (
-                  <div key={index} className="bg-white rounded-xl shadow-card p-6 animate-pulse">
-                    <div className="h-48 bg-gray-200 rounded-lg mb-4"></div>
-                    <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-                    <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+            {/* Onglets Liste / Carte */}
+            <Tabs 
+              defaultValue="list" 
+              value={viewMode} 
+              onValueChange={(value) => setViewMode(value as ViewMode)}
+              className="mb-6"
+            >
+              <TabsList className="grid grid-cols-2 w-full max-w-xs mx-auto">
+                <TabsTrigger value="list" className="flex items-center">
+                  <ListIcon className="h-4 w-4 mr-2" />
+                  Liste
+                </TabsTrigger>
+                <TabsTrigger value="map" className="flex items-center">
+                  <MapIcon className="h-4 w-4 mr-2" />
+                  Carte
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="list" className="mt-6">
+                {isLoading ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(6)].map((_, index) => (
+                      <div key={index} className="bg-white rounded-xl shadow-sm p-6 animate-pulse">
+                        <div className="h-48 bg-gray-200 rounded-lg mb-4"></div>
+                        <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ) : displayedGyms.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-blue-50 mb-6">
-                  <Dumbbell className="h-10 w-10 text-navy" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">Aucun résultat trouvé</h3>
-                <p className="text-gray-600 max-w-md mx-auto mb-6">
-                  Nous n'avons pas trouvé de salles correspondant à vos critères. Essayez d'ajuster vos filtres ou de réinitialiser la recherche.
-                </p>
-                <Button onClick={resetFilters}>Réinitialiser les filtres</Button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {displayedGyms.map((gym) => (
-                  <Link 
-                    key={gym.id}
-                    to={`/gyms/${gym.id}`}
-                    className="bg-white rounded-xl shadow-card hover:shadow-card-hover transition-shadow duration-300 overflow-hidden group"
-                  >
-                    <div className="h-48 bg-gray-200 relative overflow-hidden">
-                      {gym.images && gym.images.length > 0 ? (
-                        <img 
-                          src={gym.images[0]} 
-                          alt={gym.name} 
-                          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-blue-50 text-navy">
-                          <Dumbbell className="h-12 w-12" />
-                        </div>
-                      )}
-                      {gym.featured && (
-                        <div className="absolute top-2 right-2 bg-cyan text-navy py-1 px-3 rounded-full text-xs font-medium">
-                          En vedette
-                        </div>
-                      )}
+                ) : displayedGyms.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-blue-50 mb-6">
+                      <Dumbbell className="h-10 w-10 text-[#002875]" />
                     </div>
-                    <div className="p-6">
-                      <div className="flex justify-between items-start">
-                        <h3 className="text-lg font-semibold mb-1">{gym.name}</h3>
-                        {gym.rating && (
-                          <div className="flex items-center text-yellow-500">
-                            <Star className="h-4 w-4 fill-current" />
-                            <span className="ml-1 text-sm">{gym.rating}</span>
+                    <h3 className="text-lg font-semibold mb-2">Aucun résultat trouvé</h3>
+                    <p className="text-gray-600 max-w-md mx-auto mb-6">
+                      Nous n'avons pas trouvé de salles correspondant à vos critères. Essayez d'ajuster vos filtres ou de réinitialiser la recherche.
+                    </p>
+                    <Button onClick={resetFilters}>Réinitialiser les filtres</Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {displayedGyms.map((gym) => (
+                      <Link 
+                        key={gym.id}
+                        to={`/gyms/${gym.id}`}
+                        className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden group ${selectedGymId === gym.id ? 'ring-2 ring-[#61dafb]' : ''}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleGymSelect(gym.id);
+                          if (viewMode === 'list') {
+                            // Si en mode liste, naviguer vers la page détaillée
+                            window.location.href = `/gyms/${gym.id}`;
+                          }
+                        }}
+                      >
+                        <div className="h-48 bg-gray-200 relative overflow-hidden">
+                          {gym.images && gym.images.length > 0 ? (
+                            <img 
+                              src={gym.images[0]} 
+                              alt={gym.name} 
+                              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-blue-50 text-[#002875]">
+                              <Dumbbell className="h-12 w-12" />
+                            </div>
+                          )}
+                          {gym.featured && (
+                            <div className="absolute top-2 right-2 bg-[#61dafb] text-[#002875] py-1 px-3 rounded-full text-xs font-medium">
+                              En vedette
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-6">
+                          <div className="flex justify-between items-start">
+                            <h3 className="text-lg font-semibold mb-1">{gym.name}</h3>
+                            {gym.rating && (
+                              <div className="flex items-center text-yellow-500">
+                                <Star className="h-4 w-4 fill-current" />
+                                <span className="ml-1 text-sm">{gym.rating}</span>
+                              </div>
+                            )}
                           </div>
-                        )}
+                          <p className="text-gray-500 text-sm mb-3">
+                            <MapPin className="inline h-3.5 w-3.5 mr-1" />
+                            {gym.city}
+                          </p>
+                          <p className="text-gray-600 mb-4">{truncateText(gym.description, 100)}</p>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {gym.amenities.slice(0, 3).map((amenity, i) => (
+                              <span key={i} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
+                                {amenity}
+                              </span>
+                            ))}
+                            {gym.amenities.length > 3 && (
+                              <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
+                                +{gym.amenities.length - 3}
+                              </span>
+                            )}
+                          </div>
+                          <div className="border-t pt-4">
+                            <p className="text-[#002875] font-medium">
+                              À partir de {formatPrice(Math.min(...gym.plans.map(plan => plan.price)))} / mois
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="map" className="mt-6">
+                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                  <div className="h-[70vh]">
+                    {isLoading ? (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#61dafb]"></div>
                       </div>
-                      <p className="text-gray-500 text-sm mb-3">
-                        <MapPin className="inline h-3.5 w-3.5 mr-1" />
-                        {gym.city}
-                      </p>
-                      <p className="text-gray-600 mb-4">{truncateText(gym.description, 100)}</p>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {gym.amenities.slice(0, 3).map((amenity, i) => (
-                          <span key={i} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
-                            {amenity}
-                          </span>
-                        ))}
-                        {gym.amenities.length > 3 && (
-                          <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
-                            +{gym.amenities.length - 3}
-                          </span>
-                        )}
+                    ) : displayedGyms.length === 0 ? (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                        <div className="text-center p-6">
+                          <MapPin className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                          <p className="text-gray-500">Aucune salle à afficher sur la carte</p>
+                        </div>
                       </div>
-                      <div className="border-t pt-4">
-                        <p className="text-navy font-medium">
-                          À partir de {formatPrice(Math.min(...gym.plans.map(plan => plan.price)))} / mois
-                        </p>
-                      </div>
+                    ) : (
+                      <GymMap 
+                        gyms={displayedGyms} 
+                        onGymSelect={handleGymSelect}
+                        selectedGymId={selectedGymId || undefined}
+                      />
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+            
+            {/* Affichage du détail de la salle sélectionnée dans la vue carte */}
+            {viewMode === 'map' && selectedGymId && (
+              <div className="bg-white rounded-lg shadow-sm p-4 mt-4">
+                {displayedGyms.find(gym => gym.id === selectedGymId) && (
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="w-full md:w-1/4">
+                      {(() => {
+                        const selectedGym = displayedGyms.find(gym => gym.id === selectedGymId)!;
+                        return (
+                          <>
+                            {selectedGym.images && selectedGym.images.length > 0 ? (
+                              <img 
+                                src={selectedGym.images[0]} 
+                                alt={selectedGym.name} 
+                                className="w-full h-32 object-cover rounded-lg"
+                              />
+                            ) : (
+                              <div className="w-full h-32 flex items-center justify-center bg-blue-50 text-[#002875] rounded-lg">
+                                <Dumbbell className="h-10 w-10" />
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
-                  </Link>
-                ))}
+                    <div className="flex-1">
+                      {(() => {
+                        const selectedGym = displayedGyms.find(gym => gym.id === selectedGymId)!;
+                        return (
+                          <>
+                            <div className="flex justify-between items-start">
+                              <h3 className="text-xl font-semibold">{selectedGym.name}</h3>
+                              {selectedGym.rating && (
+                                <div className="flex items-center text-yellow-500">
+                                  <Star className="h-4 w-4 fill-current" />
+                                  <span className="ml-1">{selectedGym.rating}</span>
+                                </div>
+                              )}
+                            </div>
+                            <p className="text-gray-500 text-sm mb-2">
+                              <MapPin className="inline h-3.5 w-3.5 mr-1" />
+                              {selectedGym.address}, {selectedGym.zipCode} {selectedGym.city}
+                            </p>
+                            <p className="text-gray-600 mb-3">{truncateText(selectedGym.description, 150)}</p>
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              {selectedGym.amenities.slice(0, 5).map((amenity, i) => (
+                                <span key={i} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
+                                  {amenity}
+                                </span>
+                              ))}
+                              {selectedGym.amenities.length > 5 && (
+                                <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
+                                  +{selectedGym.amenities.length - 5}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <p className="text-[#002875] font-medium">
+                                À partir de {formatPrice(Math.min(...selectedGym.plans.map(plan => plan.price)))} / mois
+                              </p>
+                              <Link 
+                                to={`/gyms/${selectedGym.id}`}
+                                className="bg-[#002875] text-white px-4 py-2 rounded hover:bg-opacity-90 text-sm"
+                              >
+                                Voir détails
+                              </Link>
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

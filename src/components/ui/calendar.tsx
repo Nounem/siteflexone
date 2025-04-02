@@ -2,8 +2,8 @@ import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { cn } from '../../lib/utils';
+import { buttonVariants } from "./button";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -51,9 +51,25 @@ function Calendar({
         day_hidden: "invisible",
         ...classNames,
       }}
+      // Personnalisation des boutons de navigation via une Navbar personnalisée
       components={{
-        IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
-        IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
+        // @ts-ignore: Custom Navbar is not recognized by the type definition.
+        Navbar: ({ onPrevious, onNext }) => (
+          <div className="relative">
+            <button
+              onClick={onPrevious}
+              className="absolute left-1 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={onNext}
+              className="absolute right-1 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        ),
       }}
       {...props}
     />

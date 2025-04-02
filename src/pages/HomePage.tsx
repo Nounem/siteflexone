@@ -2,11 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Dumbbell, Users, Briefcase, CheckCircle, Zap, Star } from 'lucide-react';
-import useGyms from '../hooks/useGyms.ts';
-import { Gym } from '../lib/types.ts';
-import { truncateText, formatPrice } from '../lib/utils.ts';
-import { Button } from '../components/ui/button.tsx';
-import { Carousel } from '../components/ui/carousel.tsx';
+import useGyms from '../hooks/useGyms';
+import { Gym } from '../lib/types';
+import { truncateText, formatPrice } from '../lib/utils';
+import { Button } from '../components/ui/button';
+import { Carousel } from '../components/ui/carousel';
 
 const HomePage = () => {
   const { gyms, isLoading } = useGyms();

@@ -1,147 +1,118 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { cn } from '../../lib/utils.ts';
+import React, { useState, useRef, useEffect } from 'react';
+import { cn } from '../../lib/utils';
 
 interface SliderProps {
   value: number | [number, number];
-  min: number;
-  max: number;
+  min?: number;
+  max?: number;
   step?: number;
-  onValueChange: (value: number | [number, number]) => void;
+  onValueChange?: (value: number | [number, number]) => void;
   className?: string;
 }
 
 export const Slider: React.FC<SliderProps> = ({
   value,
-  min,
-  max,
+  min = 0,
+  max = 100,
   step = 1,
   onValueChange,
-  className,
+  className
 }) => {
-  const rangeRef = useRef<HTMLDivElement>(null);
-  const thumbOneRef = useRef<HTMLDivElement>(null);
-  const thumbTwoRef = useRef<HTMLDivElement>(null);
   const isRange = Array.isArray(value);
+  const [localValue, setLocalValue] = useState<number | [number, number]>(value);
+  const [dragging, setDragging] = useState<'min' | 'max' | null>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
 
-  const [isDragging, setIsDragging] = useState<'one' | 'two' | null>(null);
-  const [internalValue, setInternalValue] = useState<number | [number, number]>(value);
-
-  // Lorsque la valeur externe change, mettre à jour la valeur interne
   useEffect(() => {
-    setInternalValue(value);
+    setLocalValue(value);
   }, [value]);
 
-  // Convertir une valeur en pourcentage par rapport au min/max
-  const valueToPercent = (val: number) => {
-    return ((val - min) / (max - min)) * 100;
-  };
-
-  // Convertir un pourcentage en valeur
-  const percentToValue = (percent: number) => {
-    const rawValue = min + (percent / 100) * (max - min);
-    const steppedValue = Math.round(rawValue / step) * step;
-    return Math.min(max, Math.max(min, steppedValue));
-  };
-
-  // Gérer le début du glissement
-  const handleMouseDown = (event: React.MouseEvent, thumb: 'one' | 'two') => {
-    event.preventDefault();
-    setIsDragging(thumb);
-  };
-
-  // Gérer le glissement
-  useEffect(() => {
-    if (!isDragging || !rangeRef.current) return;
-
-    const handleMouseMove = (event: MouseEvent) => {
-      const rect = rangeRef.current!.getBoundingClientRect();
-      const offsetX = event.clientX - rect.left;
-      const percent = Math.min(100, Math.max(0, (offsetX / rect.width) * 100));
-      const newValue = percentToValue(percent);
-
-      if (isRange) {
-        const [valueOne, valueTwo] = internalValue as [number, number];
-        if (isDragging === 'one') {
-          const clampedValue = Math.min(newValue, valueTwo);
-          setInternalValue([clampedValue, valueTwo]);
-          onValueChange([clampedValue, valueTwo]);
-        } else {
-          const clampedValue = Math.max(newValue, valueOne);
-          setInternalValue([valueOne, clampedValue]);
-          onValueChange([valueOne, clampedValue]);
+  const handleTrackClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!trackRef.current) return;
+    
+    const rect = trackRef.current.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+    const newValue = min + percent * (max - min);
+    const snappedValue = Math.round(newValue / step) * step;
+    const limitedValue = Math.max(min, Math.min(max, snappedValue));
+    
+    if (isRange) {
+      const [minVal, maxVal] = localValue as [number, number];
+      // Determine which handle to move based on distance
+      const distToMin = Math.abs(limitedValue - minVal);
+      const distToMax = Math.abs(limitedValue - maxVal);
+      
+      if (distToMin <= distToMax) {
+        if (limitedValue <= maxVal) {
+          const newRangeValue: [number, number] = [limitedValue, maxVal];
+          setLocalValue(newRangeValue);
+          if (onValueChange) onValueChange(newRangeValue);
         }
       } else {
-        setInternalValue(newValue);
-        onValueChange(newValue);
+        if (limitedValue >= minVal) {
+          const newRangeValue: [number, number] = [minVal, limitedValue];
+          setLocalValue(newRangeValue);
+          if (onValueChange) onValueChange(newRangeValue);
+        }
       }
-    };
+    } else {
+      setLocalValue(limitedValue);
+      if (onValueChange) onValueChange(limitedValue);
+    }
+  };
 
-    const handleMouseUp = () => {
-      setIsDragging(null);
-    };
+  const getPositionFromValue = (val: number): string => {
+    return `${((val - min) / (max - min)) * 100}%`;
+  };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, internalValue, isRange, max, min, onValueChange, step]);
-
-  // Calculer les pourcentages pour l'affichage
-  const thumbOnePercent = isRange
-    ? valueToPercent((internalValue as [number, number])[0])
-    : valueToPercent(internalValue as number);
-  
-  const thumbTwoPercent = isRange
-    ? valueToPercent((internalValue as [number, number])[1])
-    : 0;
-
-  const trackWidth = isRange
-    ? thumbTwoPercent - thumbOnePercent
-    : thumbOnePercent;
-
-  const trackLeft = isRange ? thumbOnePercent : 0;
+  const getTrackFillStyle = () => {
+    if (isRange) {
+      const [minVal, maxVal] = localValue as [number, number];
+      const left = getPositionFromValue(minVal);
+      const width = `calc(${getPositionFromValue(maxVal)} - ${left})`;
+      return { left, width };
+    } else {
+      const width = getPositionFromValue(localValue as number);
+      return { width };
+    }
+  };
 
   return (
-    <div 
-      className={cn("relative w-full h-6 flex items-center", className)}
-      ref={rangeRef}
-    >
-      {/* Piste d'arrière-plan */}
-      <div className="absolute h-2 w-full bg-gray-200 rounded-full" />
-      
-      {/* Piste active */}
-      <div 
-        className="absolute h-2 bg-[#61dafb] rounded-full"
-        style={{ 
-          width: `${trackWidth}%`,
-          left: `${trackLeft}%`
-        }}
-      />
-      
-      {/* Premier curseur */}
+    <div className={cn("relative h-5 flex items-center", className)}>
       <div
-        ref={thumbOneRef}
-        className={cn(
-          "absolute w-4 h-4 bg-white border-2 border-[#61dafb] rounded-full shadow transform -translate-x-1/2 cursor-pointer hover:bg-[#61dafb] hover:border-[#002875]",
-          isDragging === 'one' && "bg-[#61dafb] border-[#002875]"
-        )}
-        style={{ left: `${thumbOnePercent}%` }}
-        onMouseDown={(e) => handleMouseDown(e, 'one')}
-      />
-      
-      {/* Deuxième curseur (pour la plage) */}
-      {isRange && (
+        ref={trackRef}
+        className="h-1.5 w-full bg-gray-200 rounded-full cursor-pointer"
+        onClick={handleTrackClick}
+      >
         <div
-          ref={thumbTwoRef}
-          className={cn(
-            "absolute w-4 h-4 bg-white border-2 border-[#61dafb] rounded-full shadow transform -translate-x-1/2 cursor-pointer hover:bg-[#61dafb] hover:border-[#002875]",
-            isDragging === 'two' && "bg-[#61dafb] border-[#002875]"
-          )}
-          style={{ left: `${thumbTwoPercent}%` }}
-          onMouseDown={(e) => handleMouseDown(e, 'two')}
+          className="absolute h-1.5 bg-[#61dafb] rounded-full"
+          style={getTrackFillStyle()}
+        ></div>
+      </div>
+
+      {isRange ? (
+        <>
+          <button
+            type="button"
+            className={`absolute w-5 h-5 rounded-full bg-white border-2 border-[#002875] -ml-2.5 focus:outline-none focus:ring-2 focus:ring-[#61dafb] focus:ring-offset-2`}
+            style={{ left: getPositionFromValue((localValue as [number, number])[0]) }}
+            onMouseDown={() => setDragging('min')}
+            aria-label="Minimum value"
+          />
+          <button
+            type="button"
+            className={`absolute w-5 h-5 rounded-full bg-white border-2 border-[#002875] -ml-2.5 focus:outline-none focus:ring-2 focus:ring-[#61dafb] focus:ring-offset-2`}
+            style={{ left: getPositionFromValue((localValue as [number, number])[1]) }}
+            onMouseDown={() => setDragging('max')}
+            aria-label="Maximum value"
+          />
+        </>
+      ) : (
+        <button
+          type="button"
+          className={`absolute w-5 h-5 rounded-full bg-white border-2 border-[#002875] -ml-2.5 focus:outline-none focus:ring-2 focus:ring-[#61dafb] focus:ring-offset-2`}
+          style={{ left: getPositionFromValue(localValue as number) }}
+          aria-label="Slider value"
         />
       )}
     </div>

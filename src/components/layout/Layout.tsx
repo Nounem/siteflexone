@@ -2,8 +2,8 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
-import { Button } from '../ui/button.tsx';
-import { cn } from '../../lib/utils.ts';
+import { Button } from '../ui/button';
+import { cn } from '../../lib/utils';
 
 const Layout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

@@ -1,18 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "target": "es2015", /* ou une version plus récente comme es2016, es2017, es2018, etc. */
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -21,10 +16,10 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": ["src/*"]
+    },
+    "downlevelIteration": true /* Ajouter cette option pour résoudre les problèmes avec Set */
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }

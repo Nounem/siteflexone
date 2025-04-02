@@ -4,11 +4,11 @@ import {
   MapPin, Filter, Star, Search, ChevronDown, Check, 
   ArrowUpDown, Dumbbell, SlidersHorizontal, X 
 } from 'lucide-react';
-import { formatPrice, truncateText, getUniqueCities, getUniqueAmenities } from '../lib/utils.ts';
-import useGyms from '../hooks/useGyms.ts';
-import { Gym, FilterOptions } from '../lib/types.ts';
-import GymMap from '../components/map/GymMap.tsx';
-import SectionTitle from '../components/ui/SectionTitle.tsx';
+import { formatPrice, truncateText, getUniqueCities, getUniqueAmenities } from '../lib/utils';
+import useGyms from '../hooks/useGyms';
+import { Gym, FilterOptions } from '../lib/types';
+import GymMap from '../components/map/GymMap';
+import SectionTitle from '../components/ui/SectionTitle';
 
 const FindGymMapPage: React.FC = () => {
   const { gyms, filteredGyms, filterGyms, isLoading } = useGyms();

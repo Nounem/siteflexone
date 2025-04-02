@@ -1,34 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Button } from '../components/ui/button.tsx';
+import { Button } from '../components/ui/button';
 import { 
   MapPin, Phone, Mail, Globe, Clock, Check, Star, ChevronRight, 
   ChevronLeft, Dumbbell, ArrowLeft, Share2, X 
 } from 'lucide-react';
-import { Badge } from '../components/ui/badge.tsx';
+import { Badge } from '../components/ui/badge';
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '../components/ui/tabs.tsx';
+} from '../components/ui/tabs';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '../components/ui/accordion.tsx';
+} from '../components/ui/accordion';
 import { 
   Dialog, 
   DialogContent, 
   DialogHeader, 
   DialogTitle,
   DialogTrigger
-} from '../components/ui/dialog.tsx';
-import { Carousel } from '../components/ui/carousel.tsx';
-import { Gym, Plan } from '../lib/types.ts';
-import useGyms from '../hooks/useGyms.ts';
-import { formatPrice, formatTime } from '../lib/utils.ts';
+} from '../components/ui/dialog';
+import { Carousel } from '../components/ui/carousel';
+import { Gym, Plan } from '../lib/types';
+import useGyms from '../hooks/useGyms';
+import { formatPrice, formatTime } from '../lib/utils';
 
 const GymDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -202,7 +202,7 @@ const GymDetailPage = () => {
             )}
 
             {/* Onglets d'informations */}
-            <Tabs defaultValue="description" className="mt-6 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <Tabs defaultValue="description" className="mt-6 animate-fade-in delay-400">
               <TabsList className="w-full justify-start border-b rounded-none bg-transparent p-0 mb-6">
                 <TabsTrigger 
                   value="description" 

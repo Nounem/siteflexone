@@ -7,8 +7,45 @@ import { Vector as VectorLayer } from 'ol/layer';
 import { Style, Icon, Text, Fill, Stroke } from 'ol/style';
 import Overlay from 'ol/Overlay';
 import { Extent } from 'ol/extent';
-import { Gym } from '../lib/types.ts';
-import { formatPrice } from '../lib/utils.ts';
+import { Gym } from '../lib/types';
+import { formatPrice } from '../lib/utils';
+
+// Noms uniques pour les listeners d'événements
+const CLICK_KEY = 'gym-marker-click';
+const HOVER_KEY = 'gym-marker-hover';
+
+// Fonction pour générer des coordonnées aléatoires basées sur la ville
+function getRandomCoordinatesForCity(city: string): [number, number] {
+  // Coordonnées approximatives de quelques villes françaises
+  const cityCoordinates: Record<string, [number, number]> = {
+    'Paris': [2.3522, 48.8566],
+    'Lyon': [4.8357, 45.7640],
+    'Marseille': [5.3698, 43.2965],
+    'Toulouse': [1.4442, 43.6047],
+    'Nice': [7.2620, 43.7102],
+    'Nantes': [-1.5534, 47.2184],
+    'Strasbourg': [7.7521, 48.5734],
+    'Montpellier': [3.8767, 43.6108],
+    'Bordeaux': [-0.5792, 44.8378],
+    'Lille': [3.0573, 50.6292]
+  };
+
+  // Si la ville est dans notre liste, utiliser ses coordonnées
+  if (city in cityCoordinates) {
+    const [lon, lat] = cityCoordinates[city];
+    // Ajouter une petite variation pour éviter que les marqueurs se superposent
+    return [
+      lon + (Math.random() - 0.5) * 0.05, 
+      lat + (Math.random() - 0.5) * 0.05
+    ];
+  }
+
+  // Sinon, générer des coordonnées en France
+  return [
+    2.2137 + (Math.random() - 0.5) * 2, 
+    46.2276 + (Math.random() - 0.5) * 2
+  ];
+}
 
 // Fonction pour ajouter les marqueurs de salles à la carte
 export function addGymMarkers(
@@ -28,12 +65,8 @@ export function addGymMarkers(
   
   // Créer des marqueurs pour chaque salle
   gyms.forEach(gym => {
-    // Créer les coordonnées (simulation - normalement ces données viendraient de l'API)
-    // Pour un vrai projet, vous auriez des coordonnées lon/lat dans vos données
-    // Ici nous créons des coordonnées aléatoires autour de la France
-    const lon = 2.2137 + (Math.random() - 0.5) * 2;
-    const lat = 46.2276 + (Math.random() - 0.5) * 2;
-    
+    // Obtenir des coordonnées basées sur la ville
+    const [lon, lat] = getRandomCoordinatesForCity(gym.city);
     const coordinates = fromLonLat([lon, lat]);
     
     // Créer une entité Feature pour le marqueur
@@ -47,17 +80,12 @@ export function addGymMarkers(
     const normalStyle = new Style({
       image: new Icon({
         anchor: [0.5, 1],
-        src: 'https://cdn-icons-png.flaticon.com/512/25/25613.png', // Remplacer par votre propre icône
-        scale: 0.05,
-        color: '#002875'
+        src: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="%23002875" stroke="%23FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>',
+        scale: 1.2
       }),
       text: new Text({
-        text: gym.name,
-        font: '12px Calibri,sans-serif',
-        fill: new Fill({ color: '#000' }),
-        stroke: new Stroke({ color: '#fff', width: 2 }),
-        offsetY: -20,
-        padding: [2, 2, 2, 2]
+        text: '',  // Pas de texte pour les marqueurs normaux
+        offsetY: -20
       })
     });
     
@@ -65,16 +93,15 @@ export function addGymMarkers(
     const selectedStyle = new Style({
       image: new Icon({
         anchor: [0.5, 1],
-        src: 'https://cdn-icons-png.flaticon.com/512/25/25613.png',
-        scale: 0.07,
-        color: '#61dafb'
+        src: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="%2361dafb" stroke="%23FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>',
+        scale: 1.5
       }),
       text: new Text({
         text: gym.name,
         font: 'bold 12px Calibri,sans-serif',
         fill: new Fill({ color: '#002875' }),
         stroke: new Stroke({ color: '#fff', width: 3 }),
-        offsetY: -20,
+        offsetY: -30,
         padding: [2, 2, 2, 2]
       })
     });
@@ -82,6 +109,7 @@ export function addGymMarkers(
     feature.setStyle(normalStyle);
     feature.set('normalStyle', normalStyle);
     feature.set('selectedStyle', selectedStyle);
+    feature.set('id', gym.id);  // Stocker l'ID pour faciliter la sélection
     
     vectorSource.addFeature(feature);
   });
@@ -98,39 +126,44 @@ export function addGymMarkers(
   // Ajouter des interactions sur les marqueurs
   if (overlayElement) {
     // Gérer le clic sur un marqueur
-    map.on('click', function(evt) {
-      const feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-        return feature;
+    const clickHandler = function(evt: any) {
+      // Fermer le popup si on clique ailleurs que sur un marqueur
+      let clickedFeature = null;
+      
+      map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+        clickedFeature = feature;
+        return true;  // Arrêter l'itération
       });
       
-      if (feature && feature.get('gym')) {
-        const gym = feature.get('gym') as Gym;
-        const coordinates = (feature.getGeometry() as Point).getCoordinates();
+      // Restaurer le style normal pour tous les marqueurs
+      vectorSource.getFeatures().forEach(f => {
+        f.setStyle(f.get('normalStyle'));
+      });
+      
+      if (clickedFeature && (clickedFeature as Feature).get('gym')) {
+        const gym = (clickedFeature as Feature).get('gym') as Gym;
+        const coordinates = (clickedFeature as Feature<Point>).getGeometry()?.getCoordinates();
         
-        // Mettre à jour le contenu de l'overlay
+        // Appliquer le style sélectionné pour le marqueur cliqué
+        (clickedFeature as Feature).setStyle((clickedFeature as Feature).get('selectedStyle'));
+        
+        // Mettre à jour le contenu HTML de l'overlay
         if (overlayElement) {
-          // Restaurer le style normal pour tous les marqueurs
-          vectorSource.getFeatures().forEach(f => {
-            f.setStyle(f.get('normalStyle'));
-          });
-          
-          // Appliquer le style sélectionné pour le marqueur cliqué
-          feature.setStyle(feature.get('selectedStyle'));
-          
-          // Mettre à jour le contenu HTML de l'overlay
           const title = overlayElement.querySelector('h3');
           if (title) title.textContent = gym.name;
           
           const address = overlayElement.querySelector('.gym-address');
-          if (address) address.textContent = `${gym.city}, ${gym.zipCode}`;
+          if (address) address.textContent = `${gym.address}, ${gym.zipCode} ${gym.city}`;
           
           const rating = overlayElement.querySelector('.gym-rating span');
           if (rating) {
             if (gym.rating) {
               rating.textContent = `${gym.rating.toFixed(1)}/5`;
-              overlayElement.querySelector('.gym-rating')?.classList.remove('hidden');
+              const ratingContainer = overlayElement.querySelector('.gym-rating');
+              if (ratingContainer) ratingContainer.classList.remove('hidden');
             } else {
-              overlayElement.querySelector('.gym-rating')?.classList.add('hidden');
+              const ratingContainer = overlayElement.querySelector('.gym-rating');
+              if (ratingContainer) ratingContainer.classList.add('hidden');
             }
           }
           
@@ -181,14 +214,34 @@ export function addGymMarkers(
           overlayElement.style.display = 'none';
         }
       }
-    });
+    };
     
     // Changer le curseur lorsqu'on survole un marqueur
-    map.on('pointermove', function(evt) {
+    const moveHandler = function(evt: any) {
       const pixel = map.getEventPixel(evt.originalEvent);
       const hit = map.hasFeatureAtPixel(pixel);
       map.getTargetElement().style.cursor = hit ? 'pointer' : '';
-    });
+    };
+    
+    // Suppression des anciens gestionnaires (si présents)
+    const oldClickHandler = map.get(CLICK_KEY);
+    const oldMoveHandler = map.get(HOVER_KEY);
+    
+    if (oldClickHandler) {
+      map.getViewport().removeEventListener('click', oldClickHandler);
+    }
+    
+    if (oldMoveHandler) {
+      map.getViewport().removeEventListener('pointermove', oldMoveHandler);
+    }
+    
+    // Ajout des nouveaux gestionnaires
+    map.getViewport().addEventListener('click', clickHandler);
+    map.getViewport().addEventListener('pointermove', moveHandler);
+    
+    // Stockage des références aux gestionnaires
+    map.set(CLICK_KEY, clickHandler);
+    map.set(HOVER_KEY, moveHandler);
   }
   
   return vectorSource;
@@ -196,10 +249,8 @@ export function addGymMarkers(
 
 // Centrer la carte sur une salle spécifique
 export function centerMapOnGym(map: Map, gym: Gym, zoom = 13, animate = true) {
-  // Simulation - normalement ces données viendraient de l'API
-  const lon = 2.2137 + (Math.random() - 0.5) * 2;
-  const lat = 46.2276 + (Math.random() - 0.5) * 2;
-  
+  // Obtenir des coordonnées basées sur la ville
+  const [lon, lat] = getRandomCoordinatesForCity(gym.city);
   const coordinates = fromLonLat([lon, lat]);
   
   const view = map.getView();
@@ -231,5 +282,42 @@ export function fitMapToGyms(map: Map, source: VectorSource) {
 
 // S'assurer que la carte est visible et correctement dimensionnée
 export function ensureMapVisible(map: Map) {
-  map.updateSize();
+  setTimeout(() => {
+    map.updateSize();
+  }, 200);
+}
+
+// Fonction pour nettoyer les événements de la carte
+export function cleanupMap(map: Map) {
+  // Vérifier si la carte existe
+  if (!map) return;
+
+  try {
+    // Supprimer plutôt toutes les couches nommées 'gymMarkers'
+    const layers = map.getLayers().getArray();
+    const gymLayers = layers.filter(layer => layer.get('name') === 'gymMarkers');
+    
+    gymLayers.forEach(layer => {
+      map.removeLayer(layer);
+    });
+    
+    // Récupérer les gestionnaires d'événements
+    const clickHandler = map.get(CLICK_KEY);
+    const moveHandler = map.get(HOVER_KEY);
+    
+    // Supprimer les écouteurs si présents
+    if (clickHandler && map.getViewport()) {
+      map.getViewport().removeEventListener('click', clickHandler);
+    }
+    
+    if (moveHandler && map.getViewport()) {
+      map.getViewport().removeEventListener('pointermove', moveHandler);
+    }
+    
+    // Nettoyer les références
+    map.set(CLICK_KEY, undefined);
+    map.set(HOVER_KEY, undefined);
+  } catch (error) {
+    console.error('Erreur lors du nettoyage de la carte:', error);
+  }
 }

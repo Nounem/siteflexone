@@ -1,3 +1,7 @@
-import { useToast, toast } from "@/hooks/use-toast";
+export function useToast() {
+  // TODO: implement the useToast hook functionality
+}
 
-export { useToast, toast };
+export function toast() {
+  // TODO: implement the toast functionality
+}
