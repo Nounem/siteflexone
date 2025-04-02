@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2015", /* ou une version plus récente comme es2016, es2017, es2018, etc. */
+    "target": "es2015",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -18,7 +18,7 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "downlevelIteration": true /* Ajouter cette option pour résoudre les problèmes avec Set */
+    "downlevelIteration": true  // Cette option est nécessaire pour les [...Set]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

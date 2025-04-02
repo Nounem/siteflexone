@@ -4,6 +4,33 @@ import gymService from '../services/gymService';
 import { Gym, GymPlan, DayOfWeek } from '../lib/types';
 import { v4 as uuidv4 } from 'uuid';
 
+interface GymFormData {
+  name: string;
+  address: string;
+  city: string;
+  zipCode: string;
+  description: string;
+  amenities: string[];
+  plans: GymPlan[];
+  images: string[];
+  openingHours: {
+    [key in DayOfWeek]: {
+      open: string;
+      close: string;
+      closed?: boolean;
+    }
+  };
+  contact: {
+    phone: string;
+    email: string;
+    website?: string;
+  };
+  rating?: number;
+  reviewCount?: number;
+  featured?: boolean;
+  [key: string]: any; // Pour permettre l'accès dynamique via [name]: value
+}
+
 // Valeurs par défaut pour une nouvelle salle
 const DEFAULT_GYM: Omit<Gym, "id" | "createdAt" | "updatedAt"> = {
   name: '',
@@ -67,7 +94,7 @@ const DAYS_OF_WEEK: { id: DayOfWeek, label: string }[] = [
 const AdminGymForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [gym, setGym] = useState<any>(DEFAULT_GYM);
+  const [gym, setGym] = useState<GymFormData>(DEFAULT_GYM as GymFormData);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const isNewGym = id === 'new';
@@ -78,7 +105,7 @@ const AdminGymForm: React.FC = () => {
       const existingGym = gymService.getGymById(id as string);
       
       if (existingGym) {
-        setGym(existingGym);
+        setGym(existingGym as GymFormData);
         setLoading(false);
       } else {
         setError('Salle de sport non trouvée');
@@ -89,18 +116,18 @@ const AdminGymForm: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setGym(prevGym => ({ ...prevGym, [name]: value }));
+    setGym((prevGym: GymFormData) => ({ ...prevGym, [name]: value }));
   };
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setGym(prevGym => ({ ...prevGym, [name]: parseFloat(value) }));
+    setGym((prevGym: GymFormData) => ({ ...prevGym, [name]: parseFloat(value) }));
   };
 
   const handleAmenityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
     
-    setGym(prevGym => {
+    setGym((prevGym: GymFormData) => {
       if (checked) {
         return { ...prevGym, amenities: [...prevGym.amenities, value] };
       } else {
@@ -110,7 +137,7 @@ const AdminGymForm: React.FC = () => {
   };
 
   const handleOpeningHoursChange = (day: DayOfWeek, type: 'open' | 'close', value: string) => {
-    setGym(prevGym => ({
+    setGym((prevGym: GymFormData) => ({
       ...prevGym,
       openingHours: {
         ...prevGym.openingHours,
@@ -123,7 +150,7 @@ const AdminGymForm: React.FC = () => {
   };
 
   const handleDayClosedChange = (day: DayOfWeek, closed: boolean) => {
-    setGym(prevGym => ({
+    setGym((prevGym: GymFormData) => ({
       ...prevGym,
       openingHours: {
         ...prevGym.openingHours,
@@ -137,7 +164,7 @@ const AdminGymForm: React.FC = () => {
 
   const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setGym(prevGym => ({
+    setGym((prevGym: GymFormData) => ({
       ...prevGym,
       contact: {
         ...prevGym.contact,
@@ -156,14 +183,14 @@ const AdminGymForm: React.FC = () => {
       features: []
     };
     
-    setGym(prevGym => ({
+    setGym((prevGym: GymFormData) => ({
       ...prevGym,
       plans: [...prevGym.plans, newPlan]
     }));
   };
 
   const updatePlan = (index: number, field: string, value: any) => {
-    setGym(prevGym => {
+    setGym((prevGym: GymFormData) => {
       const updatedPlans = [...prevGym.plans];
       updatedPlans[index] = {
         ...updatedPlans[index],
@@ -174,14 +201,14 @@ const AdminGymForm: React.FC = () => {
   };
 
   const removePlan = (index: number) => {
-    setGym(prevGym => ({
+    setGym((prevGym: GymFormData) => ({
       ...prevGym,
       plans: prevGym.plans.filter((_: any, i: number) => i !== index)
     }));
   };
 
   const updatePlanFeatures = (index: number, features: string) => {
-    setGym(prevGym => {
+    setGym((prevGym: GymFormData) => {
       const updatedPlans = [...prevGym.plans];
       updatedPlans[index] = {
         ...updatedPlans[index],
@@ -193,14 +220,14 @@ const AdminGymForm: React.FC = () => {
 
   // Gestion des images
   const addImageField = () => {
-    setGym(prevGym => ({
+    setGym((prevGym: GymFormData) => ({
       ...prevGym,
       images: [...prevGym.images, '']
     }));
   };
 
   const updateImage = (index: number, value: string) => {
-    setGym(prevGym => {
+    setGym((prevGym: GymFormData) => {
       const updatedImages = [...prevGym.images];
       updatedImages[index] = value;
       return { ...prevGym, images: updatedImages };
@@ -208,7 +235,7 @@ const AdminGymForm: React.FC = () => {
   };
 
   const removeImage = (index: number) => {
-    setGym(prevGym => ({
+    setGym((prevGym: GymFormData) => ({
       ...prevGym,
       images: prevGym.images.filter((_: any, i: number) => i !== index)
     }));
@@ -277,7 +304,7 @@ const AdminGymForm: React.FC = () => {
                 id="featured"
                 name="featured"
                 checked={gym.featured || false}
-                onChange={(e) => setGym({...gym, featured: e.target.checked})}
+                onChange={(e) => setGym((prevGym: GymFormData) => ({...prevGym, featured: e.target.checked}))}
                 className="h-4 w-4 text-blue-600"
               />
               <label htmlFor="featured" className="text-sm font-medium text-gray-700">

@@ -65,7 +65,7 @@ export function formatTime(time: string): string {
  */
 export function getUniqueCities(gyms: { city: string }[]): string[] {
   const cities = gyms.map(gym => gym.city);
-  return [...new Set(cities)].sort();
+  return Array.from(new Set(cities)).sort();
 }
 
 /**
@@ -80,5 +80,5 @@ export function getUniqueAmenities(gyms: { amenities: string[] }[]): string[] {
     });
   });
   
-  return [...amenitiesSet].sort();
+  return Array.from(amenitiesSet).sort();
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   MapPin, Filter, Star, Search, ChevronDown, Check, 
@@ -26,6 +26,8 @@ const FindGymMapPage: React.FC = () => {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [selectedGymId, setSelectedGymId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  // Ajoutez cette ligne parmi les autres déclarations d'état en haut du composant
+  const mapContainerRef = useRef<HTMLDivElement>(null);
   
   // Récupérer les villes et équipements uniques
   useEffect(() => {
@@ -45,6 +47,17 @@ const FindGymMapPage: React.FC = () => {
     
     setActiveFilters(count);
   }, [selectedCity, selectedAmenities, priceRange, minRating]);
+
+  useEffect(() => {
+    // Forcer une mise à jour quand le mode d'affichage change
+    if (viewMode === 'map') {
+      // Donner un peu de temps au DOM pour se mettre à jour
+      setTimeout(() => {
+        // Déclencher un événement de redimensionnement pour OpenLayers
+        window.dispatchEvent(new Event('resize'));
+      }, 300);
+    }
+  }, [viewMode]);
   
   // Fonction pour appliquer les filtres
   // Fonction pour appliquer les filtres
@@ -437,9 +450,9 @@ const FindGymMapPage: React.FC = () => {
                 <div className="space-y-4">
                   {displayedGyms.map((gym) => (
                     <div 
-                      key={gym.id} 
+                      key={`list-${gym.id}`} 
                       id={`gym-${gym.id}`}
-                      className={`bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer ${selectedGymId === Number(gym.id) ? 'ring-2 ring-[#61dafb]' : ''}`}
+                      className={`bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer ${selectedGymId === gym.id ? 'ring-2 ring-[#61dafb]' : ''}`}
                       onClick={() => handleGymSelect(gym.id)}
                     >
                       <div className="flex flex-col sm:flex-row">
@@ -514,10 +527,12 @@ const FindGymMapPage: React.FC = () => {
             </div>
             
             {/* Carte */}
+           {/* Carte */}
             <div 
-              className={`${viewMode === 'list' ? 'hidden' : 'block'} md:block ${viewMode === 'map' ? 'w-full' : ''} md:w-1/2 h-[70vh] md:h-[calc(100vh-200px)] sticky top-[100px]`}
+              ref={mapContainerRef}
+              className={`${viewMode === 'list' ? 'hidden md:block' : 'block'} ${viewMode === 'map' ? 'w-full' : ''} md:w-1/2 h-[70vh] md:h-[calc(100vh-200px)] sticky top-[100px]`}
             >
-              <div className="bg-white rounded-lg shadow-sm p-0 h-full overflow-hidden">
+              <div className="bg-white rounded-lg shadow-sm p-0 h-full w-full overflow-hidden">
                 {isLoading ? (
                   <div className="w-full h-full flex items-center justify-center bg-gray-100">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#61dafb]"></div>
